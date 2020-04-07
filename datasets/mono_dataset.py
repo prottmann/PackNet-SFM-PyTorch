@@ -65,8 +65,8 @@ class MonoDataset(data.Dataset):
             self.contrast = (0.8, 1.2)
             self.saturation = (0.8, 1.2)
             self.hue = (-0.1, 0.1)
-            transforms.ColorJitter.get_params(
-                self.brightness, self.contrast, self.saturation, self.hue)
+            transforms.ColorJitter.get_params(self.brightness, self.contrast,
+                                              self.saturation, self.hue)
         except TypeError:
             self.brightness = 0.2
             self.contrast = 0.2
@@ -75,9 +75,9 @@ class MonoDataset(data.Dataset):
 
         self.resize = {}
         for i in range(self.num_scales):
-            s = 2 ** i
-            self.resize[i] = transforms.Resize((self.height // s, self.width // s),
-                                               interpolation=self.interp)
+            s = 2**i
+            self.resize[i] = transforms.Resize(
+                (self.height // s, self.width // s), interpolation=self.interp)
 
         self.load_depth = self.check_depth()
 
@@ -152,16 +152,20 @@ class MonoDataset(data.Dataset):
         for i in self.frame_idxs:
             if i == "s":
                 other_side = {"r": "l", "l": "r"}[side]
-                inputs[("color", i, -1)] = self.get_color(folder, frame_index, other_side, do_flip)
+                inputs[("color", i,
+                        -1)] = self.get_color(folder, frame_index, other_side,
+                                              do_flip)
             else:
-                inputs[("color", i, -1)] = self.get_color(folder, frame_index + i, side, do_flip)
+                inputs[("color", i,
+                        -1)] = self.get_color(folder, frame_index + i, side,
+                                              do_flip)
 
         # adjusting intrinsics to match each scale in the pyramid
         for scale in range(self.num_scales):
             K = self.K.copy()
 
-            K[0, :] *= self.width // (2 ** scale)
-            K[1, :] *= self.height // (2 ** scale)
+            K[0, :] *= self.width // (2**scale)
+            K[1, :] *= self.height // (2**scale)
 
             inv_K = np.linalg.pinv(K)
 
@@ -183,7 +187,8 @@ class MonoDataset(data.Dataset):
         if self.load_depth:
             depth_gt = self.get_depth(folder, frame_index, side, do_flip)
             inputs["depth_gt"] = np.expand_dims(depth_gt, 0)
-            inputs["depth_gt"] = torch.from_numpy(inputs["depth_gt"].astype(np.float32))
+            inputs["depth_gt"] = torch.from_numpy(inputs["depth_gt"].astype(
+                np.float32))
 
         if "s" in self.frame_idxs:
             stereo_T = np.eye(4, dtype=np.float32)
@@ -197,7 +202,7 @@ class MonoDataset(data.Dataset):
             for i in self.frame_idxs:
                 if i == 's':
                     raise NotImplementedError
-                v, t = self.get_v_and_t(folder, frame_index+i)
+                v, t = self.get_v_and_t(folder, frame_index + i)
                 inputs[("velocity", i, 0)] = torch.from_numpy(v)
                 inputs[("timestamp", i, 0)] = torch.from_numpy(t)
 
