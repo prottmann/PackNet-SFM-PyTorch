@@ -194,6 +194,29 @@ class MonodepthOptions:
             "from the original monodepth paper",
             action="store_true")
 
+        self.parser.add_argument("--options_file",
+                                 help="",
+                                 type=str,
+                                 default="train.yaml",
+                                 choices=["train.yaml", "eval.yaml"])
+
     def parse(self):
         self.options = self.parser.parse_args()
+        #print(self.options)
+        self.options = loadYaml(self.options)
+        #print(self.options)
         return self.options
+
+
+def loadYaml(options):
+    import yaml
+    # Convert namespace to dict
+    d = vars(options)
+    with open(options.options_file) as file:
+        # The FullLoader parameter handles the conversion from YAML
+        # scalar values to Python the dictionary format
+        p = yaml.load(file, Loader=yaml.FullLoader)
+
+        for key in p:
+            d[key] = p[key]
+    return options

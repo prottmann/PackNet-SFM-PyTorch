@@ -1,0 +1,10 @@
+png: True
+data_path: /home/peter/packnet_data/datasets/KITTI_raw
+
+# Training parameters
+model_name: test
+split: test
+batch_size: 6
+num_epochs: 10
+
+

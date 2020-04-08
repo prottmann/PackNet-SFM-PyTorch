@@ -16,14 +16,15 @@ def export_gt_depths_kitti():
 
     parser.add_argument('--data_path',
                         type=str,
-                        help='path to the root of the KITTI data',
-                        required=True)
+                        help='path to the root of the KITTI data')
     parser.add_argument('--split',
                         type=str,
                         help='which split to export gt from',
-                        required=True,
                         choices=["eigen", "eigen_benchmark", "test"])
+    parser.add_argument('--options_file', type=str, help='')
+
     opt = parser.parse_args()
+    opt = loadYaml(opt)
 
     split_folder = os.path.join(os.path.dirname(__file__), "splits", opt.split)
     lines = readlines(os.path.join(split_folder, "test_files.txt"))
@@ -62,6 +63,20 @@ def export_gt_depths_kitti():
     print("Saving to {}".format(opt.split))
 
     np.savez_compressed(output_path, data=np.array(gt_depths))
+
+
+def loadYaml(options):
+    import yaml
+    # Convert namespace to dict
+    d = vars(options)
+    with open(options.options_file) as file:
+        # The FullLoader parameter handles the conversion from YAML
+        # scalar values to Python the dictionary format
+        p = yaml.load(file, Loader=yaml.FullLoader)
+
+        for key in p:
+            d[key] = p[key]
+    return options
 
 
 if __name__ == "__main__":

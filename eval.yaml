@@ -1,0 +1,11 @@
+png: True
+data_path: /home/peter/packnet_data/datasets/KITTI_raw
+
+# Evaluation options
+model_name: test
+split: test
+load_weights_folder: ./log/test/models/weights_24
+eval_mono: True
+eval_out_dir: ./output
+eval_split: test
+save_pred_disps: True
